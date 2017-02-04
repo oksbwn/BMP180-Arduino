@@ -1,5 +1,4 @@
 #include <Wire.h>
-#include <Wire.h>
 #include <stdio.h>
 #include <math.h>
 
@@ -103,80 +102,64 @@ void loop(){
 char begin(){
 	double c3,c4,b1;
 	Wire.begin();
-
-	if (readInt(0xAA,AC1) &&
-		readInt(0xAC,AC2) &&
-		readInt(0xAE,AC3) &&
-		readUInt(0xB0,AC4) &&
-		readUInt(0xB2,AC5) &&
-		readUInt(0xB4,AC6) &&
-		readInt(0xB6,VB1) &&
-		readInt(0xB8,VB2) &&
-		readInt(0xBA,MB) &&
-		readInt(0xBC,MC) &&
-		readInt(0xBE,MD))
-	{
-
-		c3 = 160.0 * pow(2,-15) * AC3;
-		c4 = pow(10,-3) * pow(2,-15) * AC4;
-		b1 = pow(160,2) * pow(2,-30) * VB1;
-		c5 = (pow(2,-15) / 160) * AC5;
-		c6 = AC6;
-		mc = (pow(2,11) / pow(160,2)) * MC;
-		md = MD / 160.0;
-		x0 = AC1;
-		x1 = 160.0 * pow(2,-13) * AC2;
-		x2 = pow(160,2) * pow(2,-25) * VB2;
-		y0 = c4 * pow(2,15);
-		y1 = c4 * c3;
-		y2 = c4 * b1;
-		p0 = (3791.0 - 8.0) / 1600.0;
-		p1 = 1.0 - 7357.0 * pow(2,-20);
-		p2 = 3038.0 * 100.0 * pow(2,-36);
-		
-		return(1);
-	}
+	if(readDataFromBMP(0xAA,2))
+		AC1= signed16BitVar;
 	else
-	{
 		return(0);
-	}
+	if(readDataFromBMP(0xAC,2)
+		AC2= signed16BitVar;
+	else
+		return(0);	
+	if(readDataFromBMP(0xAE,2)
+		AC3= signed16BitVar;
+	else
+		return(0);	
+	if(readDataFromBMP(0xB0,2)
+		AC4= unSigned16BitVar;
+	else
+		return(0);
+	if(readDataFromBMP(0xB2,2)
+		AC5= unSigned16BitVar;
+	else
+		return(0);
+	if(readDataFromBMP(0xB4,2)
+		AC6= unSigned16BitVar;
+	else
+		return(0);
+	if(readDataFromBMP(0xB6,2)
+		VB1= signed16BitVar;
+	else
+		return(0);
+	if(readDataFromBMP(0xB8,2)
+		VB2= signed16BitVar;
+	else
+		return(0);
+	if(readDataFromBMP(0xBA,2)
+		MB=	signed16BitVar;
+	else
+		return(0);
+	if(readDataFromBMP(0xBC,2)
+		MC= signed16BitVar;
+	else
+		return(0);
+	if(readDataFromBMP(0xBE,2)
+		MD= signed16BitVar;
+	else
+		return(0);
+		
+	return 1;
+
 }
 
-
-char readInt(char address, int16_t &value){
-	unsigned char data[2];
-
-	data[0] = address;
-	if (readBytes(data,2))
-	{
-		value = (int16_t)((data[0]<<8)|data[1]);
-		return(1);
-	}
-	value = 0;
-	return(0);
-}
-
-
-char readUInt(char address, uint16_t &value){
-	unsigned char data[2];
-
-	data[0] = address;
-	if (readBytes(data,2))
-	{
-		value = (((uint16_t)data[0]<<8)|(uint16_t)data[1]);
-		return(1);
-	}
-	value = 0;
-	return(0);
-}
-
-
-char readBytes(unsigned char *values, char length)
+int16_t signed16BitVar;
+uint16_t unSigned16BitVar;
+ 
+char readDataFromBMP(unsigned char address, char length)
 {
 	char x;
-
+	unsigned char values[2];
 	Wire.beginTransmission(BMP180_ADDR);
-	Wire.write(values[0]);
+	Wire.write(address);
 	_error = Wire.endTransmission();
 	if (_error == 0)
 	{
@@ -186,7 +169,12 @@ char readBytes(unsigned char *values, char length)
 		{
 			values[x] = Wire.read();
 		}
-		return(1);
+		
+		signed16BitVar = (int16_t)((data[0]<<8)|data[1]);
+			
+		unSigned16BitVar = (((uint16_t)data[0]<<8)|(uint16_t)data[1]);
+		
+		return 1;
 	}
 	return(0);
 }
@@ -315,4 +303,3 @@ char getError(void)
 {
 	return(_error);
 }
-
