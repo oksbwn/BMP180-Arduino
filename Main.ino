@@ -7,8 +7,6 @@
 #define BMP180_REG_RESULT 0xF6
 #define BMP180_COMMAND_TEMPERATURE 0x2E
 #define BMP180_COMMAND_PRESSURE 0x34 //0x34 0x74 0xB4 0xF4
-#define ALTITUDE 1500
-
 
 uint16_t unSignedIntTempVar,AC4,AC5,AC6;
 int16_t signedIntTempVar,AC1,AC2,AC3,VB1,VB2,MB,MC,MD;
@@ -32,12 +30,6 @@ void loop(){
   char status;
   double T,P,p0,a;
   
-  Serial.println();
-  Serial.print("provided altitude: ");
-  Serial.print(ALTITUDE,0);
-  Serial.print(" meters, ");
-  Serial.print(ALTITUDE*3.28084,0);
-  Serial.println(" feet");
     
     if (measureParameters(P,T) != 0){
 
@@ -52,15 +44,8 @@ void loop(){
       Serial.print(" mb, ");
       Serial.print(P*0.0295333727,2);
       Serial.println(" inHg");
-
-      p0 = P/pow(1-(ALTITUDE/44330.0),5.255);
-      Serial.print("relative (sea-level) pressure: ");
-      Serial.print(p0,2);
-      Serial.print(" mb, ");
-      Serial.print(p0*0.0295333727,2);
-      Serial.println(" inHg");
       
-      a = 44330.0*(1-pow(P/p0,1/5.255));
+      a = 44330.0*(1-pow(P/1013.25,1/5.255));
       Serial.print("computed altitude: ");
       Serial.print(a,0);
       Serial.print(" meters, ");
